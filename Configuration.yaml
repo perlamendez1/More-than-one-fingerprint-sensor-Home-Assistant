@@ -1,0 +1,136 @@
+
+#Fingerprint mqtt topic [For Home Assistant version >= 2022.12.x]
+mqtt:
+  sensor:
+    - name: "Fingerprint"
+      state_topic: "/fingerprint/mode/status"
+      value_template: "{{value_json.state}}"
+      json_attributes_topic: "/fingerprint/mode/status"
+      json_attributes_template: "{{value_json | tojson}}"
+      
+    - name: "Fingerprint01"                                 #<- Cambiar numero
+      state_topic: "/fingerprint/mode/status/01"           
+      value_template: "{{value_json.state}}"
+      json_attributes_topic: "/fingerprint/mode/status/01"  #<- Cambiar numero
+      json_attributes_template: "{{value_json | tojson}}"
+
+
+
+      
+sensor:
+## The below commented code works on HomeAssistant version <= 2022.11.x
+## Comment the mqtt block above to use below code on older versions of HomeAssistant
+#  - platform: mqtt
+#    name: "Fingerprint"
+#    state_topic: "/fingerprint/mode/status"
+#    value_template: "{{value_json.state}}"
+#    json_attributes_topic: "/fingerprint/mode/status"
+#    json_attributes_template: "{{value_json | tojson}}"
+  - platform: template
+    sensors:
+      fingerprint_mode:
+        friendly_name: "Fingerprint Sensor Mode"
+        value_template: >-
+          {{state_attr('sensor.fingerprint', 'mode')}}
+        icon_template: >-
+          {% if is_state('sensor.fingerprint_mode', 'reading') %}
+            mdi:book-open-outline
+          {% elif is_state('sensor.fingerprint_mode', 'learning') %}
+            mdi:book-open-page-variant
+          {% endif %}
+      fingerprint_state:
+        friendly_name: "Fingerprint State"
+        value_template: >-
+          {{states('sensor.fingerprint')}}
+        icon_template: >-
+          {% if is_state('sensor.fingerprint', 'Waiting') %}
+            mdi:fingerprint
+          {% elif is_state('sensor.fingerprint', 'Matched') %}
+            mdi:fingerprint
+          {% elif is_state('sensor.fingerprint', 'Not matched') %}
+            mdi:fingerprint-off
+          {% endif %}
+      fingerprint_id:
+        friendly_name: "Fingerprint ID"
+        value_template: >-
+          {{state_attr('sensor.fingerprint', 'id')}}
+      fingerprint_person:
+        friendly_name: "Fingerprint Person"
+        value_template: >-
+          {% if states('sensor.fingerprint_id') | int >= 1 %}
+            {%- set printid = states('sensor.fingerprint_id') | int -%}
+            {%- set prints = states("input_text.fingerprint_data") | from_json if states("input_text.fingerprint_data") else [] -%}
+            {%- set fingerprint = prints|selectattr('id', 'eq', states('sensor.fingerprint_id') | int) | first -%}
+            {{fingerprint["name"]}}
+          {% elif is_state('sensor.fingerprint', 'Waiting') %}
+            Waiting
+          {% elif is_state('sensor.fingerprint', 'Not matched') %}
+            Not matched
+          {% endif %}
+        icon_template: >-
+          {% if is_state('sensor.fingerprint', 'Waiting') %}
+            mdi:human-male
+          {% elif is_state('sensor.fingerprint', 'Matched') %}
+            mdi:human-greeting
+          {% elif is_state('sensor.fingerprint', 'Not matched') %}
+            mdi:police-badge
+          {% endif %}
+          
+sensor:
+## The below commented code works on HomeAssistant version <= 2022.11.x
+## Comment the mqtt block above to use below code on older versions of HomeAssistant
+#  - platform: mqtt 
+#    name: "Fingerprint01"  #<- Cambiar numero
+#    state_topic: "/fingerprint/mode/status/01" #<- Cambiar numero
+#    value_template: "{{value_json.state}}"
+#    json_attributes_topic: "/fingerprint/mode/status/01"
+#    json_attributes_template: "{{value_json | tojson}}"
+  - platform: template
+    sensors:
+      fingerprint_mode01:                                                              
+        friendly_name: "Fingerprint Sensor Mode01"                                     
+        value_template: >-
+          {{state_attr('sensor.fingerprint01', 'mode')}}                                
+        icon_template: >-
+          {% if is_state('sensor.fingerprint_mode01', 'reading') %}                     
+            mdi:book-open-outline                                          
+          {% elif is_state('sensor.fingerprint_mode01', 'learning') %}                 
+            mdi:book-open-page-variant
+          {% endif %}
+      fingerprint_state01:                                                              
+        friendly_name: "Fingerprint State01"                                            
+        value_template: >-
+          {{states('sensor.fingerprint01')}}                                            
+        icon_template: >-
+          {% if is_state('sensor.fingerprint01', 'Waiting') %}                          
+            mdi:fingerprint 
+          {% elif is_state('sensor.fingerprint01', 'Matched') %}                        
+            mdi:fingerprint
+          {% elif is_state('sensor.fingerprint01', 'Not matched') %}                    
+            mdi:fingerprint-off
+          {% endif %}
+      fingerprint_id01:                                                                 
+        friendly_name: "Fingerprint ID01"                                              
+        value_template: >-
+          {{state_attr('sensor.fingerprint01', 'id')}}                                  
+      fingerprint_person01:                                                            
+        friendly_name: "Fingerprint Person01"                                          
+        value_template: >-
+          {% if states('sensor.fingerprint_id01') | int >= 1 %}                        
+            {%- set printid = states('sensor.fingerprint_id01') | int -%}               
+            {%- set prints = states("input_text.fingerprint_data01") | from_json if states("input_text.fingerprint_data01") else [] -%}         
+            {%- set fingerprintXX = prints|selectattr('id', 'eq', states('sensor.fingerprint_id01') | int) | first -%}                          
+            {{fingerprint01["name"]}}                                                   
+          {% elif is_state('sensor.fingerprint01', 'Waiting') %}                       
+            Waiting                                                                    
+          {% elif is_state('sensor.fingerprint01', 'Not matched') %}                    
+            Not matched
+          {% endif %}
+        icon_template: >-
+          {% if is_state('sensor.fingerprint01', 'Waiting') %}                          
+            mdi:human-male
+          {% elif is_state('sensor.fingerprint01', 'Matched') %}                        
+            mdi:human-greeting                                                         
+          {% elif is_state('sensor.fingerprint01', 'Not matched') %}                    
+            mdi:police-badge
+          {% endif %}
